@@ -12,3 +12,13 @@
 
 {% endblock %}
 
+  {% csrf_token %}
+    {% if next %}
+        <input type="hidden" name="next" value="{{ next }}">
+    {% endif %}
+    {{ login_form.as_p }}
+
+if 'next' in request.POST.keys():
+
+return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
