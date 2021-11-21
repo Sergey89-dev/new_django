@@ -19,13 +19,15 @@ import mainapp.views as mainapp
 from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls import include
+from django.urls import re_path
+
 
 
 
 urlpatterns = [
     path('control/', admin.site.urls),
-    path('', mainapp.main, name='main'),
-    path('products/', mainapp.products, name='products'),
+    re_path(r'^$', mainapp.main, name='main'),
+    re_path(r'^products/', include('mainapp.urls', namespace='products')),
     path('contact/', mainapp.contact, name='contact'),
     path('products/home/', mainapp.products_home, name='products_home'),
     path('products/office/', mainapp.products_office, name='products_office'),
@@ -34,7 +36,7 @@ urlpatterns = [
     path('auth/', include('authapp.urls', namespace='auth')),
     path('basket/', include('basketapp.urls', namespace='basket')),
     path('admin/', include('adminapp.urls', namespace='adminapp')),
-
+    
 ]
 
 if settings.DEBUG:

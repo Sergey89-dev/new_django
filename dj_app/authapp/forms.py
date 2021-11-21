@@ -3,7 +3,8 @@ from authapp.forms import ShopUserLoginForm
 from django.contrib import auth
 from django.urls import reverse
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.forms import UserChangeForm
+import random, hashlib
+
 
 
 def login(request):
@@ -44,3 +45,15 @@ class ShopUserRegisterForm(UserCreationForm):
 
         return data
 
+     
+    def save(self):
+        user = super(ShopUserRegisterForm, self).save()
+
+        user.is_active = False
+        salt = hashlib.sha1(str(random.random()).encode('utf8')).hexdigest()[:6]
+        user.activation_key = hashlib.sha1((user.email + salt).encode('utf8')).hexdigest()
+        user.save()
+
+        return user
+
+    
