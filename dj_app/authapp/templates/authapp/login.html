@@ -21,4 +21,14 @@
 if 'next' in request.POST.keys():
 
 return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+<button class="btn btn-round form-control">
+    <a href="{% url 'auth:register' %}" class="">
+        Зарегистрироваться
+    </a>
+</button>
+<button class="btn btn-round form-control">
+    <a href="{% url 'social:begin' 'vk-oauth2' %}?next=/">
+     Вход через ВКонтакте 
+    </a>
+</button>
 

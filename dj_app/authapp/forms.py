@@ -4,7 +4,7 @@ from django.contrib import auth
 from django.urls import reverse
 from django.contrib.auth.forms import UserCreationForm
 import random, hashlib
-
+from .models import ShopUserProfile
 
 
 def login(request):
@@ -56,4 +56,11 @@ class ShopUserRegisterForm(UserCreationForm):
 
         return user
 
-    
+class ShopUserProfileEditForm(forms.ModelForm):
+    class Meta:
+        model = ShopUserProfile
+        fields = ('tagline', 'aboutMe', 'gender')
+
+    def __init__(self, *args, **kwargs):
+        super(ShopUserProfileEditForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
