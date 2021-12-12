@@ -6,6 +6,16 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 def main(request):
+    title = 'главная'
+
+    products = Product.objects.\
+                    filter(is_active=True, category__is_active=True).\
+                      select_related('category')[:3]
+    content = {
+       'title': title,
+       'products': products,
+   }
+
     return render(request, 'mainapp/index.html')
 
 
@@ -182,6 +192,11 @@ def products(request, pk=None):
 
     return render(request, 'mainapp/products.html', content)
 
+def load_from_json(file_name):
+   with open(os.path.join(JSON_PATH, file_name + '.json'), 'r',\
+             errors='ignore') as infile:
+       return json.load(infile)
+
 
 def product(request, pk):
     title = 'продукты'
@@ -230,4 +245,5 @@ def products(request, pk=None, page=1):
         }
 
         return render(request, 'mainapp/products_list.html', content)
+
     

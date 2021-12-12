@@ -15,6 +15,8 @@ from ordersapp.models import Order, OrderItem
 from ordersapp.forms import OrderItemForm
 from django.http import JsonResponse
 from mainapp.models import Product
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 
 
 class OrderList(ListView):
@@ -118,24 +120,38 @@ def product_quantity_update_delete(sender, instance, **kwargs):
     instance.product.quantity += instance.quantity
     instance.product.save()
 
+
 def get_product_price(request, pk):
-   if request.is_ajax():
-       product = Product.objects.filter(pk=int(pk)).first()
-       if product:
-           return JsonResponse({'price': product.price})
-       else:
-           return JsonResponse({'price': 0})
+    if request.is_ajax():
+        product = Product.objects.filter(pk=int(pk)).first()
+        if product:
+            return JsonResponse({'price': product.price})
+        else:
+            return JsonResponse({'price': 0})
+
 
 class OrderItemsUpdate(UpdateView):
 
-     def get_context_data(self, **kwargs):
-         if self.request.POST:
-           data['orderitems'] = OrderFormSet(self.request.POST,
-                                             instance=self.object)
-         else:
-           formset = OrderFormSet(instance=self.object)
-           for form in formset.forms:
-               if form.instance.pk:
-                   form.initial['price'] = form.instance.product.price
-           data['orderitems'] = formset
+    def get_context_data(self, **kwargs):
+        if self.request.POST:
+            data['orderitems'] = OrderFormSet(self.request.POST,
+                                              instance=self.object)
+        else:
+            queryset = self.object.orderitems.select_related()
+            formset = OrderFormSet(instance=self.object)
+            for form in formset.forms:
+                if form.instance.pk:
+                    form.initial['price'] = form.instance.product.price
+            data['orderitems'] = formset
             return data
+
+
+class OrderList(ListView):
+    model = Order
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user)
+
+    @method_decorator(login_required())
+    def dispatch(self, *args, **kwargs):
+        return super(ListView, self).dispatch(*args, **kwargs)
