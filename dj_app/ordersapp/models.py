@@ -11,6 +11,14 @@ class Order(models.Model):
     READY = 'RDY'
     CANCEL = 'CNC'
 
+    def get_summary(self):
+        items = self.orderitems.select_related()
+        return {
+            'total_cost': sum(list(map(lambda x: x.quantity * x.product.price,
+                                       items))),
+            'total_quantity': sum(list(map(lambda x: x.quantity, items)))
+        }
+
     ORDER_STATUS_CHOICES = (
         (FORMING, 'формируется'),
         (SENT_TO_PROCEED, 'отправлен в обработку'),
@@ -58,17 +66,19 @@ class Order(models.Model):
         self.is_active = False
         self.save()
 
+
 class OrderItemQuerySet(models.QuerySet):
 
-   def delete(self, *args, **kwargs):
-       for object in self:
-           object.product.quantity += object.quantity
-           object.product.save()
-       super(OrderItemQuerySet, self).delete(*args, **kwargs)
+    def delete(self, *args, **kwargs):
+        for object in self:
+            object.product.quantity += object.quantity
+            object.product.save()
+        super(OrderItemQuerySet, self).delete(*args, **kwargs)
 
 
 class OrderItem(models.Model):
-   objects = OrderItemQuerySet.as_manager()
+    objects = OrderItemQuerySet.as_manager()
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order,
