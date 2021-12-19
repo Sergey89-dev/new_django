@@ -14,7 +14,11 @@ def basket_add(request, pk):
     product = get_object_or_404(Product, pk=pk)
     
     basket = Basket.objects.filter(user=request.user, product=product).first()
-
+        old_basket_item = Basket.get_product(user=request.user, product=product)
+   if old_basket_item:
+       old_basket_item[0].quantity += 1
+       old_basket_item[0].save()
+   else:
     if not basket:
         basket = Basket(user=request.user, product=product)
 
